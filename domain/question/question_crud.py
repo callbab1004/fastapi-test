@@ -2,8 +2,10 @@ from datetime import datetime
 
 from domain.question.question_schema import QuestionCreate, QuestionUpdate
 from sqlalchemy import and_
+from sqlalchemy import select
 from models import Question, User, Answer
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def get_question_list(db: Session, skip: int = 0, limit: int = 10, keyword: str = ''):
@@ -53,3 +55,10 @@ def delete_question(db: Session, db_question: Question):
 def vote_question(db: Session, db_question: Question, db_user: User):
     db_question.voter.append(db_user)
     db.commit()
+
+async def get_async_question_list(db: AsyncSession):
+    data = await db.execute(select(Question)
+                            .order_by(Question.create_date.desc())
+                            .limit(10))
+    questions = data.scalars().all()
+    return questions

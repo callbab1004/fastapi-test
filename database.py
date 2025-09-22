@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./myapi.db"
@@ -25,3 +26,12 @@ def get_db():
         yield db
     finally:
         db.close()
+
+async_engine = create_async_engine("sqlite+aiosqlite:///./myapi.db")
+
+async def get_async_db():
+    db = AsyncSession(bind=async_engine)
+    try:
+        yield db
+    finally:
+        await db.close()
